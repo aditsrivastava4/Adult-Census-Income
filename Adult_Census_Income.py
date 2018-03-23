@@ -123,6 +123,7 @@ def svm_svc(kernel,c=1.0):
 # In[ ]:
 
 
-kernel = ['linear','rbf','sigmoid','precomputed','poly']
+kernel = ['linear','rbf','sigmoid','poly']
 svm_svc(kernel,c=0.1)
-
+print('\nC=1.0')
+svm_svc(kernel)
