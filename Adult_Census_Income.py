@@ -1,9 +1,3 @@
-
-# coding: utf-8
-
-# In[2]:
-
-
 import warnings
 warnings.filterwarnings('ignore')
 import pandas as pd
@@ -16,15 +10,6 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import train_test_split
 
-
-# In[3]:
-
-
-df = pd.read_csv('adult.csv')
-print(df.head(5))
-
-
-# In[3]:
 
 
 def labels(y):
@@ -55,75 +40,86 @@ def metric(y,pred):
     print('f1-score = ',metrics.f1_score(y, pred, average=avg))
 
 
-# In[4]:
+def model(x,y):
+	# Train Test Split
 
-print(df.columns)
-
-
-# In[5]:
-
-
-x = df[['age','fnlwgt','education.num','hours.per.week','sex','capital.loss']].values
-x = convert(x)
-
-y = np.array(labels(df[['income']].values))
-print(len(x))
-print(len(y))
+	x_train,x_test,y_train,y_test = train_test_split(x,y,test_size=0.2,random_state=42)
+	print(len(x_train))
+	print(len(x_test))
 
 
-# ## Train Test Split
-
-# In[6]:
+	# DecisionTreeClassifier
 
 
-x_train,x_test,y_train,y_test = train_test_split(x,y,test_size=0.2,random_state=42)
-print(len(x_train))
-print(len(x_test))
+	t = time()
+	clf = DecisionTreeClassifier(criterion='entropy')
+	print(clf)
+	clf.fit(x_train,y_train)
+	print('Train Time DTC = ',(time()-t))
+	pre = clf.predict(x_test)
+	print(pre)
+	print('Accuracy = ',clf.score(x_test,y_test))
+
+	metric(y_test,pre)
+	print('Time DTC = ',(time()-t))
 
 
-# # DecisionTreeClassifier
-
-# In[7]:
+	# SVC
 
 
-t = time()
-clf = DecisionTreeClassifier(criterion='entropy')
-print(clf)
-clf.fit(x_train,y_train)
-print('Train Time DTC = ',(time()-t))
-pre = clf.predict(x_test)
-print(pre)
-print('Accuracy = ',clf.score(x_test,y_test))
+	def svm_svc(kernel,c=1.0):
+	    for i in kernel:
+	        print('Kernel = ',i)
+	        t = time()
+	        clf = SVC(kernel=i,C=c)
+	        print(clf)
+	        clf.fit(x_train,y_train.ravel())
+	        print('Train Time SVC = ',(time()-t))
+	        pre = clf.predict(x_test)
+	        print(pre)
+	        print('Accuracy = ',clf.score(x_test,y_test))
 
-metric(y_test,pre)
-print('Time DTC = ',(time()-t))
+	        metric(y_test,pre)
+	        print('Time SVC = ',(time()-t),'\n\n')
 
-
-# # SVC
-
-# In[8]:
-
-
-def svm_svc(kernel,c=1.0):
-    for i in kernel:
-        print('Kernel = ',i)
-        t = time()
-        clf = SVC(kernel=i,C=c)
-        print(clf)
-        clf.fit(x_train,y_train.ravel())
-        print('Train Time SVC = ',(time()-t))
-        pre = clf.predict(x_test)
-        print(pre)
-        print('Accuracy = ',clf.score(x_test,y_test))
-
-        metric(y_test,pre)
-        print('Time SVC = ',(time()-t),'\n\n')
+	kernel = ['linear','rbf','sigmoid','poly']
+	svm_svc(kernel,c=0.1)
+	print('\nC=1.0')
+	svm_svc(kernel)
 
 
-# In[ ]:
+	# KNeighborsClassifier
 
 
-kernel = ['linear','rbf','sigmoid','poly']
-svm_svc(kernel,c=0.1)
-print('\nC=1.0')
-svm_svc(kernel)
+	t = time()
+	clf = KNeighborsClassifier()
+	print(clf)
+	clf.fit(x_train,y_train)
+	print('Train Time DTC = ',(time()-t))
+	pre = clf.predict(x_test)
+	print(pre)
+	print('Accuracy = ',clf.score(x_test,y_test))
+
+	metric(y_test,pre)
+	print('Time DTC = ',(time()-t))
+
+
+
+def main():
+	df = pd.read_csv('adult.csv')
+	print(df.head(5))
+
+	x = df[['age','fnlwgt','education.num','hours.per.week','sex','capital.loss']].values
+	x = convert(x)
+
+	y = np.array(labels(df[['income']].values))
+	print(len(x))
+	print(len(y))
+	model(x,y)
+
+	x = df[['age','education.num','hours.per.week','sex','capital.loss']].values
+	x = convert(x)
+	model(x,y)
+
+if __name__ == '__main__':
+	main()
